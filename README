@@ -1,0 +1,87 @@
+PunyMCE
+=======
+
+This plugin provides for the installation and utilization of PunyMCE in Ruby on Rails applications.
+
+PunyMCE is a lightweight rich text editor written in JavaScript. It's designed to be used for things like comments and forums.
+
+Features:
+    * Lightwight (9kb gzipped, 16kb minified)
+    * XML output. (Easy to parse on server).
+    * Plugin support. Comes with 11 plugins.
+    * BBCode output. (Requires a plugin).
+    * Internationalization support.
+    * Flexible API. Easy to extend and add things.
+    * Crossplatform. (IE, Firefox, Safari, Opera)
+    * Library independent. (9kb is all you need)
+
+For more info please visit http://code.google.com/p/punymce/
+
+=== Installation
+
+Installing PunyMCE for Rails takes no more than a few minutes to install.
+
+Step 1
+
+Open a console, and in the root of you Rails application, install the plugin by running:
+script/plugin install git://github.com/imanel/puny_mce.git
+
+Step 2
+
+Then install the necessary files into your public directory by running
+
+  rake puny_mce:install
+
+or, if you are updating a previously installed version
+
+  rake puny_mce:update
+
+Step 3
+
+In head section of layout add
+
+  <% yield :head %>
+
+and in view when you want to use PunyMCE add
+
+  <% content_for :head do %>
+    <%= include_puny_mce %>
+  <% end %>
+
+so rails load PunyMCE only when needed.
+
+Step 4
+
+At the end you need to specify witch fields will use PunyMCE:
+
+  puny_mce "javascript_id", "text_area_id"
+
+Now you’re all set!
+
+=== Configuration
+
+When you use puny_mce helper following options can be set:
+
+  :toolbar => [ 'bold', 'italic', 'underline' ]    # Toolbar will have only "bold", "italic" and "underline" buttons
+  :plugins => [ 'Paste' ]                          # Plugin 'Paste' will be loaded (it's case-sensitive)
+  :profile => :full                                # This will load profile 'full' using all avalible plugins. Other avalible profiles are :mini, :web and :standard. This option will override :toolbar and :plugins options.
+  :min_width => 300                                # Set minimal width of the editor in pixels. Similar options are :min_height, :max_width, :max_height
+  :entities => 'numeric'                           # This option enables you to change how the entities should be encoded. There are two possible values for this option one is numeric and one is raw. Numeric will convert characters above the char code 127 to &#<number>;. Raw will not encode them at all, this is the default.
+  :content_css => 'my.css'                         # This option enabled you to specify a CSS file to be used inside the editor. It will load the css file "punymce/css/content.css" by default. This is normally the same CSS you use for your site.
+  :editor_css => 'my.css'                          # This option enabled you to specify a CSS file to be used for rendering the user interface. It will load the css file "punymce/css/editor.css" by default. You can also use the site CSS and simply set this option to an empty string or 0 if you want to skip the loading.
+  :styles => {
+    'H1' => {
+      :cls => 'h1',
+      :cmd => 'FormatBlock',
+      :val => <h1>'
+    }
+  }                                                # This option gives you the possibility to change the styles drop down menu.
+
+When you declare include_puny_mce helper following options can be set:
+
+  :profiles => [ :full ]                           # This option load all plugins from specified profile. Multiple profiles can be set this way
+  :plugins => [ 'Paste' ]                          # This option load specified plugins. It's merged with plugins loaded by :profiles option.
+  :lang => :pl                                     # This will load language file from i18n directory.
+
+=======
+Copyright (c) 2008 Bernard Potocki, released under the MIT license
