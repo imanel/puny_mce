@@ -1,44 +1,46 @@
 PunyMCE
 =======
 
-This plugin provides for the installation and utilization of PunyMCE in Ruby on Rails applications.
+This plugin enables easy installation and utilization of PunyMCE in Ruby on Rails applications.
 
-PunyMCE is a lightweight rich text editor written in JavaScript. It's designed to be used for things like comments and forums.
+== Introduction
+
+PunyMCE is a lightweight rich text WYSIWYG editor written in JavaScript in the spirit of TinyMCE. It's designed to be used for things like comments and forums.
 
 Features:
-    * Lightwight (9kb gzipped, 16kb minified)
-    * XML output. (Easy to parse on server).
-    * Plugin support. Comes with 11 plugins.
-    * BBCode output. (Requires a plugin).
-    * Internationalization support.
-    * Flexible API. Easy to extend and add things.
-    * Crossplatform. (IE, Firefox, Safari, Opera)
-    * Library independent. (9kb is all you need)
+  * Lightwight (9kb gzipped, 16kb minified)
+  * XML output. (Easy to parse on server).
+  * Plugin support. Comes with 11 plugins.
+  * BBCode output. (Requires a plugin).
+  * Internationalization support.
+  * Flexible API. Easy to extend and add things.
+  * Crossplatform. (IE, Firefox, Safari, Opera)
+  * Library independent. (9kb is all you need)
 
 For more info please visit http://code.google.com/p/punymce/
 
-=== Installation
+== Installation
 
-Installing PunyMCE for Rails takes no more than a few minutes to install.
+PunyMCE for Rails takes no more than a few minutes to install.
 
 Step 1
 
-Open a console, and in the root of you Rails application, install the plugin by running:
+Open a console, and in the root of Rails application install the plugin by typing:
 script/plugin install git://github.com/imanel/puny_mce.git
 
 Step 2
 
-Then install the necessary files into your public directory by running
+Install the necessary files into your public directory by running:
 
   rake puny_mce:install
 
-or, if you are updating a previously installed version
+or, if you are updating a previously installed version:
 
   rake puny_mce:update
 
-Step 3
+== Usage
 
-In head section of layout add
+In head section of layout add:
 
   <% yield :head %>
 
@@ -50,17 +52,15 @@ and in view when you want to use PunyMCE add
 
 so rails load PunyMCE only when needed.
 
-Step 4
-
-At the end you need to specify witch fields will use PunyMCE:
+At the end you need to specify which fields will use PunyMCE:
 
   puny_mce "javascript_id", "text_area_id"
 
-Now you’re all set!
+You're all set now!
 
-=== Configuration
+== Configuration
 
-When you use puny_mce helper following options can be set:
+When using puny_mce helper the following options can be set:
 
   :toolbar => [ 'bold', 'italic', 'underline' ]    # Toolbar will have only "bold", "italic" and "underline" buttons
   :plugins => [ 'Paste' ]                          # Plugin 'Paste' will be loaded (it's case-sensitive)
