@@ -1,5 +1,4 @@
-PunyMCE
-=======
+= PunyMCE
 
 This plugin enables easy installation and utilization of PunyMCE in Ruby on Rails applications.
 
@@ -8,14 +7,14 @@ This plugin enables easy installation and utilization of PunyMCE in Ruby on Rail
 PunyMCE is a lightweight rich text WYSIWYG editor written in JavaScript in the spirit of TinyMCE. It's designed to be used for things like comments and forums.
 
 Features:
-  * Lightwight (9kb gzipped, 16kb minified)
-  * XML output. (Easy to parse on server).
-  * Plugin support. Comes with 11 plugins.
-  * BBCode output. (Requires a plugin).
-  * Internationalization support.
-  * Flexible API. Easy to extend and add things.
-  * Crossplatform. (IE, Firefox, Safari, Opera)
-  * Library independent. (9kb is all you need)
+*  Lightwight (9kb gzipped, 16kb minified)
+*  XML output. (Easy to parse on server).
+*  Plugin support. Comes with 11 plugins.
+*  BBCode output. (Requires a plugin).
+*  Internationalization support.
+*  Flexible API. Easy to extend and add things.
+*  Crossplatform. (IE, Firefox, Safari, Opera)
+*  Library independent. (9kb is all you need)
 
 For more info please visit http://code.google.com/p/punymce/
 
@@ -26,17 +25,17 @@ PunyMCE for Rails takes no more than a few minutes to install.
 Step 1
 
 Open a console, and in the root of Rails application install the plugin by typing:
-script/plugin install git://github.com/imanel/puny_mce.git
+  $ script/plugin install git://github.com/imanel/puny_mce.git
 
 Step 2
 
 Install the necessary files into your public directory by running:
 
-  rake puny_mce:install
+  $ rake puny_mce:install
 
 or, if you are updating a previously installed version:
 
-  rake puny_mce:update
+  $ rake puny_mce:update
 
 == Usage
 
@@ -83,5 +82,4 @@ When you declare include_puny_mce helper following options can be set:
   :plugins => [ 'Paste' ]                          # This option load specified plugins. It's merged with plugins loaded by :profiles option.
   :lang => :pl                                     # This will load language file from i18n directory.
 
-=======
 Copyright (c) 2008 Bernard Potocki, released under the MIT license
