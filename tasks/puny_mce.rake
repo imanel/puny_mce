@@ -1,4 +1,4 @@
-VERSION = '1.0'
+VERSION = '1.0.1'
 
 namespace :puny_mce do
   desc 'Install the PunyMCE scripts into the public/javascripts directory of this application'
@@ -61,5 +61,5 @@ namespace :puny_mce do
       puts "ERROR: No PunyMCE directory found in #{dest}"
     end
   end
-  
+
 end
