@@ -1,6 +1,4 @@
-var punymce = {};
-
-(function() {
+(function(punymce) {
 	var DOMUtils, Engine, Control, Editor, Selection, Dispatcher, Event, Serializer, I18n; // Shorten class names
 	var pageDOM, isIE, isGecko, isOpera, isWebKit, isOldWebKit, ua; // Global objects
 
@@ -205,7 +203,7 @@ var punymce = {};
 				n = this.get(n);
 
 				// IE specific method (less quirks in IE6)
-				if (n && n.getBoundingClientRect) {
+				if (punymce.isIE && n) {
 					r = n.getBoundingClientRect();
 					d = document;
 					n = d.compatMode == 'CSS1Compat' ? d.documentElement : d.body;
@@ -228,19 +226,19 @@ var punymce = {};
 				if (u) {
 					each(u.split(','), function(u) {
 						var l = -1;
-	
+
 						each(t.files, function(c, i) {
 							if (c == u) {
 								l = i;
 								return false;
 							}
 						});
-	
+
 						if (l != -1)
 							return;
-	
+
 						t.files.push(u);
-	
+
 						if (!d.createStyleSheet)
 							t.add(t.select('head')[0], 'link', {rel : 'stylesheet', href : u});
 						else
@@ -529,8 +527,9 @@ var punymce = {};
 
 		// Default settings
 		this.settings = s = extend({
-			content_css : punymce.baseURL + '/css/content.css',
-			editor_css : punymce.baseURL + '/css/editor.css',
+			content_css : punymce.baseURL + 'css/content.css',
+			editor_css : punymce.baseURL + 'css/editor.css',
+			blank_file : punymce.baseURL + 'blank.html',
 			width : 0,
 			height : 0,
 			min_width : 260,
@@ -659,28 +658,6 @@ var punymce = {};
 					return;
 
 				d.execCommand('FontSize', false, cv + v);
-
-				if (isWebKit) {
-					sp = s.getNode();
-
-					if (sp.nodeName == 'SPAN') {
-						fo = sp.parentNode;
-
-						s.select(t.getBody());
-
-						each(sp.childNodes, function(c) {
-							sp.removeChild(c);
-							fo.appendChild(c.cloneNode(1));
-						});
-
-						fo.removeChild(sp);
-						cv = ['x-small', 'small', 'medium', 'large', 'x-large', 'xx-large', '-webkit-xxx-large'].indexOf(sp.style.fontSize);
-						if (cv > 0 && cv < 7)
-							fo.setAttribute('size', (cv + 1));
-
-						s.select(fo);
-					}
-				}
 			},
 
 			IncreaseFontSize : function() {
@@ -867,7 +844,7 @@ var punymce = {};
 		});
 
 		// Add events
-		each(['onPreInit', 'onInit', 'onFocus', 'onBlur', 'onResizeStart', 'onResizeEnd', 'onPreProcess', 'onPostProcess', 'onSetContent', 'onGetContent', 'onNodeChange'], function(e) {
+		each(['onPreInit', 'onInit', 'onFocus', 'onBlur', 'onResizeStart', 'onResizeEnd', 'onPreProcess', 'onPostProcess', 'onSetContent', 'onBeforeGetContent', 'onGetContent', 'onNodeChange'], function(e) {
 			t[e] = new Dispatcher(t);
 		});
 
@@ -887,8 +864,12 @@ var punymce = {};
 					each(sta, function(n) {
 						var f;
 
-						f = t.getDoc().queryCommandState(t.tools[n].cmd) ? pageDOM.addClass : pageDOM.removeClass;
-						f.call(pageDOM, s.id + '_' + n, 'active');
+						try {
+							f = t.getDoc().queryCommandState(t.tools[n].cmd) ? pageDOM.addClass : pageDOM.removeClass;
+							f.call(pageDOM, s.id + '_' + n, 'active');
+						} catch (ex) {
+							// Might fail
+						}
 					});
 				});
 
@@ -913,18 +894,18 @@ var punymce = {};
 					f = e.form;
 
 					// Piggy back
-					f._submit = f.submit;
+					t._submit = f.submit;
 					f.submit = function() {
 						var e = pageDOM.get(s.id), f = e.form;
 						t.save();
-						f.submit = f._submit;
+						f.submit = t._submit;
 						f.submit();
 					};
 
 					// Prevent IE from memory leaking
 					Event.add(0, 'unload', function() {
 						var f = pageDOM.get(s.id).form;
-						f._submit = f.submit = null;
+						t._submit = t.submit = null;
 					});
 
 					// Submit event
@@ -937,7 +918,7 @@ var punymce = {};
 
 				if (s.resize)
 					ht += '<div id="' + s.id + '_r" class="mceResize"></div>';
-	
+
 				ht += '</td></tr></table>';
 				ht += '<div id="' + s.id + '_p" class="mcePlaceholder"></div></div>';
 
@@ -955,7 +936,7 @@ var punymce = {};
 				each(s.toolbar.split(','), function(v) {
 					var to = t.tools[v];
 
-					n = pageDOM.add(pageDOM.add(ul, 'li', {id : s.id + '_' + v, 'class' : v}), 'a', {'href' : 'javascript:void(0);', 'class' : v, title : to.title, onmousedown : 'return false;'});
+					n = pageDOM.add(pageDOM.add(ul, 'li', {id : s.id + '_' + v, 'class' : v}), 'a', {'href' : 'javascript:void(0);', 'class' : v, title : to.title, tabIndex : -1, onmousedown : 'return false;'});
 
 					Event.add(n, 'click', function(e) {
 						if (!pageDOM.hasClass(e.target.parentNode, 'disabled'))
@@ -982,7 +963,7 @@ var punymce = {};
 				// WebKit needs to be loaded this way to force it in to quirksmode to get <b> instead of <span>
 				if (isWebKit) {
 					Event.add(n, 'load', setup, t);
-					n.src = punymce.baseURL + 'blank.htm';
+					n.src = s.blank_file;
 				} else
 					setup();
 
@@ -1053,7 +1034,8 @@ var punymce = {};
 
 			save : function() {
 				var e = pageDOM.get(s.id), h = t.getContent({save : true});
-
+				// Fixed bug where empty boxes return '<html/>' as content
+				h = h.replace(/<(\/?)html(\/?)>/gi, "");
 				if (/TEXTAREA|INPUT/.test(e.nodeName))
 					e.value = h;
 				else
@@ -1063,13 +1045,15 @@ var punymce = {};
 			setUseCSS : function(s) {
 				var d = t.getDoc(), e;
 
-				if (isGecko) {
+				try {
+					// Try new Gecko method
+					d.execCommand("styleWithCSS", 0, false);
+				} catch (e) {
 					try {
-						// Try new Gecko method
-						d.execCommand("styleWithCSS", 0, false);
-					} catch (e) {
 						// Use old
 						d.execCommand("useCSS", 0, true);
+					} catch (e) {
+						// Ignore
 					}
 				}
 			},
@@ -1094,6 +1078,7 @@ var punymce = {};
 
 				o = o || {};
 				o.format = o.format || 'html';
+				t.onBeforeGetContent.dispatch(this, o);
 				h = t.serializer.serialize(t.getBody(), o);
 				h = h.replace(/^\s*|\s*$/g, '');
 				o.content = h;
@@ -1108,7 +1093,6 @@ var punymce = {};
 				t.onSetContent.dispatch(this, o);
 				h = o.content;
 				h = pageDOM.keep(h);
-
 
 				t.getBody().innerHTML = h;
 
@@ -1188,7 +1172,7 @@ var punymce = {};
 			},
 
 			setContent : function(h, o) {
-				var r = t.getRng(), b;
+				var r = t.getRng(), b, c, r, s;
 
 				o = o || {format : 'raw'};
 				h = pageDOM.keep(h);
@@ -1203,7 +1187,21 @@ var punymce = {};
 
 				if (r.insertNode) {
 					r.deleteContents();
-					r.insertNode(r.createContextualFragment(h));
+					r.insertNode(r.createContextualFragment(h + '<span id="__caret">_</span>'));
+
+					// Move to caret marker
+					c = ed.dom.get('__caret');
+
+					// Make sure we wrap it compleatly, Opera fails with a simple select call
+					r = ed.getDoc().createRange();
+					r.setStartBefore(c);
+					r.setEndBefore(c);
+					s = t.getSel();
+					s.removeAllRanges();
+					s.addRange(r);
+
+					// Remove the caret
+					c.parentNode.removeChild(c);
 				} else {
 					// Handle text and control range
 					if (r.pasteHTML)
@@ -1274,6 +1272,13 @@ var punymce = {};
 					// IE bug when used in frameset
 					return d.body.createTextRange();
 				}
+			},
+
+			setRng : function(r) {
+				var s = t.getSel();
+
+				s.removeAllRanges();
+				s.addRange(r);
 			},
 
 			setNode : function(n) {
@@ -1450,4 +1455,7 @@ var punymce = {};
 
 	// Wait for DOM loaded
 	Event._wait();
-})();
+
+	// Expose punymce
+	window.punymce = punymce;
+})({});

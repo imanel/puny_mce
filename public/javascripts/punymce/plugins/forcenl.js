@@ -1,0 +1,1 @@
+punymce.plugins.ForceNL=function(a){a.onGetContent.add(function(b,c){if(c.format=="forcenl"||c.save){punymce.each([[/<(br\s*\/)>/gi,"\n"],[/<(br.*?\/)>/gi,""]],function(d){c.content=c.content.replace(d[0],d[1])})}});a.onSetContent.add(function(b,c){if(c.format=="forcenl"||c.load){punymce.each([[/\n/gi,"<br />"]],function(d){c.content=c.content.replace(d[0],d[1])})}})};
